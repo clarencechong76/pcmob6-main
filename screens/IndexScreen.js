@@ -10,6 +10,8 @@ export default function IndexScreen({ navigation, route }) {
 
   const [posts, setPosts] = useState([]);
   const styles = lightStyles;
+  const [refreshing, setRefreshing] = useState(false);
+ 
 
   // This is to set up the top right button
   useEffect(() => {
@@ -23,7 +25,14 @@ export default function IndexScreen({ navigation, route }) {
   });
 
   useEffect(() => {
+    console.log("Setting up nav listener")
+    const removeListener = navigation.addListener("focus",() => {
+console.log("Running nav listener");
+getPosts();
+
+    });
     getPosts();
+    return removeListener;
   }, []);
 
   async function getPosts() {
@@ -42,19 +51,36 @@ export default function IndexScreen({ navigation, route }) {
       }
     }
   }
+  async function onRefresh() {
+    setRefreshing(true);
+    const response = await getPosts()
+    setRefreshing(false);
+  }
 
   function addPost() {
     
+    navigation.navigate("Add")
   }
 
-  function deletePost() {
-    
+  async function deletePost(id) {
+    const token = await AsyncStorage.getItem("token");
+    console.log("Deleting " + id);
+    try {
+      const response = await axios.delete(API + API_POSTS + `/${id}`, {
+        headers: { Authorization: `JWT ${token}` },
+      })
+      console.log(response);
+      setPosts(posts.filter((item) => item.id !== id));
+    } catch (error) {
+      console.log(error)
+      }
+
   }
 
   // The function to render each row in our FlatList
   function renderItem({ item }) {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate("Details", {post: item})}>
+      <TouchableOpacity onPress={() => navigation.navigate("Details", {id: item.id})}>
         <View
           style={{
             padding: 10,
@@ -66,7 +92,7 @@ export default function IndexScreen({ navigation, route }) {
             justifyContent: "space-between",
           }}>
           <Text style={styles.text}>{item.title}</Text>
-          <TouchableOpacity onPress={deletePost}>
+          <TouchableOpacity onPress={() => deletePost(item.id)}>
             <FontAwesome name="trash" size={20} color="#a80000" />
           </TouchableOpacity>
         </View>
@@ -81,6 +107,11 @@ export default function IndexScreen({ navigation, route }) {
         renderItem={renderItem}
         style={{ width: "100%" }}
         keyExtractor={(item) => item.id.toString()}
+        refreshControl={<RefreshControl
+          colors={["#9Bd35A", "#689F38"]}
+          refreshing={refreshing}
+          onRefresh={onRefresh}/>}
+
       />
     </View>
   );

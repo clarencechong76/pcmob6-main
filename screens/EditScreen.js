@@ -14,6 +14,7 @@ export default function EditScreen({ navigation, route }) {
   const isDark = useSelector((state) => state.accountPrefs.isDark);
   const styles = { ...commonStyles, ...isDark ? darkStyles : lightStyles };
 
+
   useEffect(() => {
     const post = route.params.post
     setTitle(post.title);
@@ -25,7 +26,7 @@ export default function EditScreen({ navigation, route }) {
       "title": title,
       "content": content,
     }
-    
+    const id = route.params.post.id
   
     try {
       console.log(token);

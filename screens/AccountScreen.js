@@ -94,8 +94,8 @@ export default function AccountScreen({ navigation }) {
       </TouchableWithoutFeedback>
       }
       {/*<Image source={{ uri: profilePicture?.uri }} style={{ width: 250, height: 250, borderRadius: 200}} />*/}
-      <TouchableOpacity onPress={() => navigation.navigate("Camera")}>
-          <Text style={{ marginTop: 10, fontSize: 20, color: "#0000EE" }}> No profile picture. Click to take one. </Text>
+      <TouchableOpacity onPress={() => profilePicture == null ? navigation.navigate("Camera") : deletePhoto()}>
+      <Text style={{ marginTop: 10, fontSize: 20, color: "#0000EE" }}> { profilePicture == null ? "No profile picture. Click to take one." : "Take another one?"} </Text>
           </TouchableOpacity>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", margin: 20}}>
         <Text style={[styles.content, styles.text]}> Dark Mode? </Text>
